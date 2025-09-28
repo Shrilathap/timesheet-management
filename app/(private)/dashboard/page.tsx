@@ -3,10 +3,9 @@ import { useBreadcrumbs } from "@/context/breadcrumb";
 import { Timesheet } from "@/app/api/timesheets/route";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { TimesheetFilters } from "@/types";
 
 export default function Dashboard() {
-  const router = useRouter();
   const [data, setData] = useState<Timesheet[]>([]);
   const { setBreadcrumbs } = useBreadcrumbs();
 
@@ -19,7 +18,7 @@ export default function Dashboard() {
   });
 
 
-  const parseRowDate = (dateStr: string) => {
+  const parseRowDate = (dateStr: string): Date => {
     try {
       const parts = dateStr.split(" ");
       const day = parts[0];
@@ -27,7 +26,7 @@ export default function Dashboard() {
       const year = parts[4]; 
       return new Date(`${day} ${month} ${year}`);
     } catch (err) {
-      return new Date("");
+      return new Date(""); // Always return a Date object
     }
   };
 
@@ -41,7 +40,7 @@ export default function Dashboard() {
 
       if (filters.dateRange) {
         const today = new Date();
-        const rowDate = parseRowDate(row.date);
+        const rowDate: Date = parseRowDate(row.date);
 
         if (isNaN(rowDate.getTime())) {
           return false;
@@ -135,7 +134,7 @@ export default function Dashboard() {
     return classes;
   };
 
-  const handleFilter = (newFilters: any) => {
+  const handleFilter = (newFilters: Partial<TimesheetFilters>) => {
     setFilters((prev) => ({
       ...prev,
       ...newFilters,

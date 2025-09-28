@@ -20,10 +20,6 @@ export interface TimesheetData {
 
 
 export interface TimesheetFilters {
-  page: number;
-  limit: number;
   status?: string;
   dateRange?: string;
-  sortField?: string;
-  sortDirection?: "asc" | "desc";
 }
