@@ -59,7 +59,7 @@ export default function Header() {
 
 
       {open && (
-        <div className="absolute right-0 top-[40px] mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5">
+        <div className="absolute right-0 top-[40px] mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5" >
           <div className="py-1">
             <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLogout}>
               Logout
