@@ -4,6 +4,8 @@ import { Timesheet } from "@/app/api/timesheets/route";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { TimesheetFilters } from "@/types";
+import CustomSelect from "@/components/Select";
+import Pagination from "@/components/Pagination";
 
 export default function Dashboard() {
   const [data, setData] = useState<Timesheet[]>([]);
@@ -16,6 +18,26 @@ export default function Dashboard() {
     status: "",
     dateRange: "",
   });
+
+  const dateOptions = [ 
+    { label: "This Week", value: "This Week" }, 
+    { label: "Last Week", value: "Last Week" }, 
+    { label: "This Month", value: "This Month" }, 
+    { label: "Last Month", value: "Last Month" }, 
+    { label: "Last 3 Month", value: "Last 3 Month" }
+   ];
+
+   const statusOptions = [ 
+    { label: "Completed", value: "COMPLETED" }, 
+    { label: "Incomplete", value: "INCOMPLETE" }, 
+    { label: "Missing", value: "MISSING" }
+   ];
+
+   const pageOptions = [ 
+    { label: "5 per page", value: 5 }, 
+    { label: "10 per page", value: 10 }, 
+    { label: "25 per page", value: 25 }
+   ];
 
 
   const parseRowDate = (dateStr: string): Date => {
@@ -103,9 +125,8 @@ export default function Dashboard() {
     );
   };
 
-  const handlePageLimitChange = (value: string) => {
-    const limit = parseInt(value);
-    setRowsPerPage(limit);
+  const handlePageLimitChange = (value: number) => {
+    setRowsPerPage(value);
     setCurrentPage(1);
   };
 
@@ -179,52 +200,8 @@ export default function Dashboard() {
 
       {/* Filters */}
       <div className="flex gap-[10px] mb-4 md:flex-row flex-col">
-        <div className="relative inline-block">
-          <select
-            id="date-range"
-            value={filters.dateRange}
-            onChange={(e) => handleFilter({ dateRange: e.target.value })}
-            className="appearance-none w-full font-normal text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-          >
-            <option value="">Date Range</option>
-            <option value="This Week">This Week</option>
-            <option value="Last Week">Last Week</option>
-            <option value="Last Month">Last Month</option>
-            <option value="Last 3 Month">Last 3 Month</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <Image
-              src="/images/down-arrow.svg"
-              alt="Dropdown icon"
-              width={24}
-              height={24}
-              className="text-gray-400"
-            />
-          </div>
-        </div>
-
-        <div className="relative inline-block">
-          <select
-            id="status"
-            value={filters.status}
-            onChange={(e) => handleFilter({ status: e.target.value })}
-            className="appearance-none w-full font-normal text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-          >
-            <option value="">Status</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="INCOMPLETE">Incomplete</option>
-            <option value="MISSING">Missing</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <Image
-              src="/images/down-arrow.svg"
-              alt="Dropdown icon"
-              width={24}
-              height={24}
-              className="text-gray-400"
-            />
-          </div>
-        </div>
+          <CustomSelect value={""} options={dateOptions} placeholder="Date range" onChange={(value: any) => handleFilter({ dateRange: value })} />
+          <CustomSelect value={""} options={statusOptions} placeholder="Status" onChange={(value: any) => handleFilter({ status: value })} />
       </div>
 
       {/* Table */}
@@ -274,92 +251,20 @@ export default function Dashboard() {
       </div>
 
       {/* Pagination */}
+
+
       <div className="flex justify-between items-center pt-4 pb-4 md:flex-row flex-col gap-2">
         <div className="inline-flex items-center gap-4">
-          <div className="relative inline-block">
-            <select
-              id="rows-per-page"
-              className="appearance-none border border-gray-300 rounded-xl px-4 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-              value={rowsPerPage}
-              onChange={(e) => handlePageLimitChange(e.target.value)}
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={25}>25 per page</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <Image
-                src="/images/down-arrow.svg"
-                alt="Dropdown icon"
-                width={24}
-                height={24}
-                className="text-gray-400"
-              />
-            </div>
-          </div>
-          <p className="text-sm text-gray-500">
+          <CustomSelect value={rowsPerPage} options={pageOptions} placeholder="" onChange={(value: any) => handlePageLimitChange(value)} />
+          {/* <p className="text-sm text-gray-500">
             Showing {currentRows.length} of {filteredData.length} entries
-          </p>
+          </p> */}
         </div>
 
-        <div className="flex flex-wrap items-center border border-gray-300 rounded-md">
-          {/* Previous button */}
-          <button
-            onClick={() => setCurrentPage((p) => p - 1)}
-            disabled={currentPage === 1}
-            className={`${getButtonClasses(
-              0,
-              !(currentPage === 1),
-              false
-            )} border-r border-gray-300`}
-          >
-            Previous
-          </button>
-
-          {/* Page numbers */}
-          {pageNumbers.map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => setCurrentPage(pageNum)}
-              className={`${getButtonClasses(
-                pageNum,
-                pageNum === currentPage
-              )} border-r border-gray-300`}
-            >
-              {pageNum}
-            </button>
-          ))}
-
-          {/* Ellipsis and last page */}
-          {showEllipsis && (
-            <>
-              <span className="px-3 py-1 text-sm text-gray-500 border-r border-gray-300">
-                ...
-              </span>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                className={`${getButtonClasses(
-                  totalPages
-                )} border-r border-gray-300`}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
-          {/* Next button */}
-          <button
-            onClick={() => setCurrentPage((p) => p + 1)}
-            disabled={currentPage === totalPages}
-            className={getButtonClasses(
-              0,
-              !(currentPage === totalPages),
-              false,
-            )}
-          >
-            Next
-          </button>
-        </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(p: number) => setCurrentPage(p)} pageSize={0} totalEntries={0}/>
       </div>
     </div>
   );
