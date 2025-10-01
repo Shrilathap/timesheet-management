@@ -5,16 +5,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  pageSize: number;
-  totalEntries: number;
   onPageChange: (page: number) => void;
 }
 
 export default function Pagination({
   currentPage,
   totalPages,
-  pageSize,
-  totalEntries,
   onPageChange,
 }: PaginationProps) {
   // Build page numbers with ellipsis
@@ -26,8 +22,8 @@ export default function Pagination({
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
 
       if (start > 2) pages.push("...");
       for (let i = start; i <= end; i++) pages.push(i);
@@ -37,8 +33,8 @@ export default function Pagination({
     return pages;
   };
 
-  const firstEntry = (currentPage - 1) * pageSize + 1;
-  const lastEntry = Math.min(currentPage * pageSize, totalEntries);
+//   const firstEntry = (currentPage - 1) * pageSize + 1;
+//   const lastEntry = Math.min(currentPage * pageSize, totalEntries);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">

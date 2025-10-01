@@ -2,7 +2,6 @@
 import { useBreadcrumbs } from "@/context/breadcrumb";
 import { Timesheet } from "@/app/api/timesheets/route";
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { TimesheetFilters } from "@/types";
 import CustomSelect from "@/components/Select";
 import Pagination from "@/components/Pagination";
@@ -130,30 +129,6 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-  const getButtonClasses = (
-    pageNum: number,
-    isActive: boolean = false,
-    isDisabled: boolean = false
-  ) => {
-    const buttonClassName =
-      "px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
-    const activeButtonClassName = "bg-blue-600 text-white";
-    const disabledButtonClassName = "opacity-50 cursor-not-allowed";
-    let classes = buttonClassName;
-
-    if (isActive) {
-      classes += ` ${activeButtonClassName}`;
-    } else {
-      classes += " text-gray-700 hover:bg-gray-100";
-    }
-
-    if (isDisabled) {
-      classes += ` ${disabledButtonClassName}`;
-    }
-    console.log(classes)
-
-    return classes;
-  };
 
   const handleFilter = (newFilters: Partial<TimesheetFilters>) => {
     setFilters((prev) => ({
@@ -163,35 +138,7 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-  const generatePageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
 
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= maxVisiblePages; i++) {
-          pages.push(i);
-        }
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-          pages.push(i);
-        }
-      }
-    }
-
-    return pages;
-  };
-
-  const pageNumbers = generatePageNumbers();
-  const showEllipsis = totalPages > 5 && currentPage < totalPages - 2;
 
 
   return (
@@ -200,8 +147,8 @@ export default function Dashboard() {
 
       {/* Filters */}
       <div className="flex gap-[10px] mb-4 md:flex-row flex-col">
-          <CustomSelect value={""} options={dateOptions} placeholder="Date range" onChange={(value: any) => handleFilter({ dateRange: value })} />
-          <CustomSelect value={""} options={statusOptions} placeholder="Status" onChange={(value: any) => handleFilter({ status: value })} />
+          <CustomSelect value={""} options={dateOptions} placeholder="Date range" onChange={(value: string) => handleFilter({ dateRange: value })} />
+          <CustomSelect value={""} options={statusOptions} placeholder="Status" onChange={(value: string) => handleFilter({ status: value })} />
       </div>
 
       {/* Table */}
@@ -255,7 +202,7 @@ export default function Dashboard() {
 
       <div className="flex justify-between items-center pt-4 pb-4 md:flex-row flex-col gap-2">
         <div className="inline-flex items-center gap-4">
-          <CustomSelect value={rowsPerPage} options={pageOptions} placeholder="" onChange={(value: any) => handlePageLimitChange(value)} />
+          <CustomSelect value={rowsPerPage} options={pageOptions} placeholder="" onChange={(value: number) => handlePageLimitChange(value)} />
           {/* <p className="text-sm text-gray-500">
             Showing {currentRows.length} of {filteredData.length} entries
           </p> */}
@@ -264,7 +211,7 @@ export default function Dashboard() {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={(p: number) => setCurrentPage(p)} pageSize={0} totalEntries={0}/>
+        onPageChange={(p: number) => setCurrentPage(p)}/>
       </div>
     </div>
   );
