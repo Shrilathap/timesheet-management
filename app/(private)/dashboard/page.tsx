@@ -2,12 +2,21 @@
 import { useBreadcrumbs } from "@/context/breadcrumb";
 import { Timesheet } from "@/app/api/timesheets/route";
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { TimesheetFilters } from "@/types";
+import CustomSelect from "@/components/Select";
+import Pagination from "@/components/Pagination";
+// import AddEntryModal from "@/components/Modal";
 
 export default function Dashboard() {
   const [data, setData] = useState<Timesheet[]>([]);
   const { setBreadcrumbs } = useBreadcrumbs();
+  //  const [showModal, setShowModal] = useState(false);
+  //    const [entry, setEntry] = useState({
+  //   projectName: "",
+  //   typeOfWork: "Bug fixes",
+  //   taskDescription: "",
+  //   hours: 1,
+  // });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -17,13 +26,32 @@ export default function Dashboard() {
     dateRange: "",
   });
 
+  const dateOptions = [
+    { label: "This Week", value: "This Week" },
+    { label: "Last Week", value: "Last Week" },
+    { label: "This Month", value: "This Month" },
+    { label: "Last Month", value: "Last Month" },
+    { label: "Last 3 Month", value: "Last 3 Month" },
+  ];
+
+  const statusOptions = [
+    { label: "Completed", value: "COMPLETED" },
+    { label: "Incomplete", value: "INCOMPLETE" },
+    { label: "Missing", value: "MISSING" },
+  ];
+
+  const pageOptions = [
+    { label: "5 per page", value: 5 },
+    { label: "10 per page", value: 10 },
+    { label: "25 per page", value: 25 },
+  ];
 
   const parseRowDate = (dateStr: string): Date => {
     try {
       const parts = dateStr.split(" ");
       const day = parts[0];
       const month = parts[3].replace(",", "");
-      const year = parts[4]; 
+      const year = parts[4];
       return new Date(`${day} ${month} ${year}`);
     } catch (err) {
       return new Date(""); // Always return a Date object
@@ -103,35 +131,9 @@ export default function Dashboard() {
     );
   };
 
-  const handlePageLimitChange = (value: string) => {
-    const limit = parseInt(value);
-    setRowsPerPage(limit);
+  const handlePageLimitChange = (value: number) => {
+    setRowsPerPage(value);
     setCurrentPage(1);
-  };
-
-  const getButtonClasses = (
-    pageNum: number,
-    isActive: boolean = false,
-    isDisabled: boolean = false
-  ) => {
-    const buttonClassName =
-      "px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
-    const activeButtonClassName = "bg-blue-600 text-white";
-    const disabledButtonClassName = "opacity-50 cursor-not-allowed";
-    let classes = buttonClassName;
-
-    if (isActive) {
-      classes += ` ${activeButtonClassName}`;
-    } else {
-      classes += " text-gray-700 hover:bg-gray-100";
-    }
-
-    if (isDisabled) {
-      classes += ` ${disabledButtonClassName}`;
-    }
-    console.log(classes)
-
-    return classes;
   };
 
   const handleFilter = (newFilters: Partial<TimesheetFilters>) => {
@@ -142,89 +144,24 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-  const generatePageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= maxVisiblePages; i++) {
-          pages.push(i);
-        }
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-          pages.push(i);
-        }
-      }
-    }
-
-    return pages;
-  };
-
-  const pageNumbers = generatePageNumbers();
-  const showEllipsis = totalPages > 5 && currentPage < totalPages - 2;
-
-
   return (
     <div className="bg-white shadow rounded-lg p-6 md:w-3/4 w-full">
       <h2 className="text-2xl font-bold mb-4">Your Timesheets</h2>
 
       {/* Filters */}
       <div className="flex gap-[10px] mb-4 md:flex-row flex-col">
-        <div className="relative inline-block">
-          <select
-            id="date-range"
-            value={filters.dateRange}
-            onChange={(e) => handleFilter({ dateRange: e.target.value })}
-            className="appearance-none w-full font-normal text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-          >
-            <option value="">Date Range</option>
-            <option value="This Week">This Week</option>
-            <option value="Last Week">Last Week</option>
-            <option value="Last Month">Last Month</option>
-            <option value="Last 3 Month">Last 3 Month</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <Image
-              src="/images/down-arrow.svg"
-              alt="Dropdown icon"
-              width={24}
-              height={24}
-              className="text-gray-400"
-            />
-          </div>
-        </div>
-
-        <div className="relative inline-block">
-          <select
-            id="status"
-            value={filters.status}
-            onChange={(e) => handleFilter({ status: e.target.value })}
-            className="appearance-none w-full font-normal text-sm border border-gray-300 rounded-lg px-4 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-          >
-            <option value="">Status</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="INCOMPLETE">Incomplete</option>
-            <option value="MISSING">Missing</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <Image
-              src="/images/down-arrow.svg"
-              alt="Dropdown icon"
-              width={24}
-              height={24}
-              className="text-gray-400"
-            />
-          </div>
-        </div>
+        <CustomSelect
+          value={""}
+          options={dateOptions}
+          placeholder="Date range"
+          onChange={(value: string) => handleFilter({ dateRange: value })}
+        />
+        <CustomSelect
+          value={""}
+          options={statusOptions}
+          placeholder="Status"
+          onChange={(value: string) => handleFilter({ status: value })}
+        />
       </div>
 
       {/* Table */}
@@ -274,93 +211,32 @@ export default function Dashboard() {
       </div>
 
       {/* Pagination */}
+
       <div className="flex justify-between items-center pt-4 pb-4 md:flex-row flex-col gap-2">
         <div className="inline-flex items-center gap-4">
-          <div className="relative inline-block">
-            <select
-              id="rows-per-page"
-              className="appearance-none border border-gray-300 rounded-xl px-4 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
-              value={rowsPerPage}
-              onChange={(e) => handlePageLimitChange(e.target.value)}
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={25}>25 per page</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <Image
-                src="/images/down-arrow.svg"
-                alt="Dropdown icon"
-                width={24}
-                height={24}
-                className="text-gray-400"
-              />
-            </div>
-          </div>
-          <p className="text-sm text-gray-500">
+          <CustomSelect
+            value={rowsPerPage}
+            options={pageOptions}
+            placeholder=""
+            onChange={(value: number) => handlePageLimitChange(value)}
+          />
+          {/* <p className="text-sm text-gray-500">
             Showing {currentRows.length} of {filteredData.length} entries
-          </p>
+          </p> */}
         </div>
 
-        <div className="flex flex-wrap items-center border border-gray-300 rounded-md">
-          {/* Previous button */}
-          <button
-            onClick={() => setCurrentPage((p) => p - 1)}
-            disabled={currentPage === 1}
-            className={`${getButtonClasses(
-              0,
-              !(currentPage === 1),
-              false
-            )} border-r border-gray-300`}
-          >
-            Previous
-          </button>
-
-          {/* Page numbers */}
-          {pageNumbers.map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => setCurrentPage(pageNum)}
-              className={`${getButtonClasses(
-                pageNum,
-                pageNum === currentPage
-              )} border-r border-gray-300`}
-            >
-              {pageNum}
-            </button>
-          ))}
-
-          {/* Ellipsis and last page */}
-          {showEllipsis && (
-            <>
-              <span className="px-3 py-1 text-sm text-gray-500 border-r border-gray-300">
-                ...
-              </span>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                className={`${getButtonClasses(
-                  totalPages
-                )} border-r border-gray-300`}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
-          {/* Next button */}
-          <button
-            onClick={() => setCurrentPage((p) => p + 1)}
-            disabled={currentPage === totalPages}
-            className={getButtonClasses(
-              0,
-              !(currentPage === totalPages),
-              false,
-            )}
-          >
-            Next
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p: number) => setCurrentPage(p)}
+        />
       </div>
+      {/* <AddEntryModal
+        isOpen={showModal}
+        formData={entry}
+        onChange={(data) => setEntry(data)} // 2-way binding
+        onClose={() => setShowModal(false)}
+      /> */}
     </div>
   );
 }
