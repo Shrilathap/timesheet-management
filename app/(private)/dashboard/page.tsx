@@ -5,10 +5,18 @@ import { useEffect, useMemo, useState } from "react";
 import { TimesheetFilters } from "@/types";
 import CustomSelect from "@/components/Select";
 import Pagination from "@/components/Pagination";
+// import AddEntryModal from "@/components/Modal";
 
 export default function Dashboard() {
   const [data, setData] = useState<Timesheet[]>([]);
   const { setBreadcrumbs } = useBreadcrumbs();
+  //  const [showModal, setShowModal] = useState(false);
+  //    const [entry, setEntry] = useState({
+  //   projectName: "",
+  //   typeOfWork: "Bug fixes",
+  //   taskDescription: "",
+  //   hours: 1,
+  // });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -18,33 +26,32 @@ export default function Dashboard() {
     dateRange: "",
   });
 
-  const dateOptions = [ 
-    { label: "This Week", value: "This Week" }, 
-    { label: "Last Week", value: "Last Week" }, 
-    { label: "This Month", value: "This Month" }, 
-    { label: "Last Month", value: "Last Month" }, 
-    { label: "Last 3 Month", value: "Last 3 Month" }
-   ];
+  const dateOptions = [
+    { label: "This Week", value: "This Week" },
+    { label: "Last Week", value: "Last Week" },
+    { label: "This Month", value: "This Month" },
+    { label: "Last Month", value: "Last Month" },
+    { label: "Last 3 Month", value: "Last 3 Month" },
+  ];
 
-   const statusOptions = [ 
-    { label: "Completed", value: "COMPLETED" }, 
-    { label: "Incomplete", value: "INCOMPLETE" }, 
-    { label: "Missing", value: "MISSING" }
-   ];
+  const statusOptions = [
+    { label: "Completed", value: "COMPLETED" },
+    { label: "Incomplete", value: "INCOMPLETE" },
+    { label: "Missing", value: "MISSING" },
+  ];
 
-   const pageOptions = [ 
-    { label: "5 per page", value: 5 }, 
-    { label: "10 per page", value: 10 }, 
-    { label: "25 per page", value: 25 }
-   ];
-
+  const pageOptions = [
+    { label: "5 per page", value: 5 },
+    { label: "10 per page", value: 10 },
+    { label: "25 per page", value: 25 },
+  ];
 
   const parseRowDate = (dateStr: string): Date => {
     try {
       const parts = dateStr.split(" ");
       const day = parts[0];
       const month = parts[3].replace(",", "");
-      const year = parts[4]; 
+      const year = parts[4];
       return new Date(`${day} ${month} ${year}`);
     } catch (err) {
       return new Date(""); // Always return a Date object
@@ -129,7 +136,6 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-
   const handleFilter = (newFilters: Partial<TimesheetFilters>) => {
     setFilters((prev) => ({
       ...prev,
@@ -138,17 +144,24 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-
-
-
   return (
     <div className="bg-white shadow rounded-lg p-6 md:w-3/4 w-full">
       <h2 className="text-2xl font-bold mb-4">Your Timesheets</h2>
 
       {/* Filters */}
       <div className="flex gap-[10px] mb-4 md:flex-row flex-col">
-          <CustomSelect value={""} options={dateOptions} placeholder="Date range" onChange={(value: string) => handleFilter({ dateRange: value })} />
-          <CustomSelect value={""} options={statusOptions} placeholder="Status" onChange={(value: string) => handleFilter({ status: value })} />
+        <CustomSelect
+          value={""}
+          options={dateOptions}
+          placeholder="Date range"
+          onChange={(value: string) => handleFilter({ dateRange: value })}
+        />
+        <CustomSelect
+          value={""}
+          options={statusOptions}
+          placeholder="Status"
+          onChange={(value: string) => handleFilter({ status: value })}
+        />
       </div>
 
       {/* Table */}
@@ -199,20 +212,31 @@ export default function Dashboard() {
 
       {/* Pagination */}
 
-
       <div className="flex justify-between items-center pt-4 pb-4 md:flex-row flex-col gap-2">
         <div className="inline-flex items-center gap-4">
-          <CustomSelect value={rowsPerPage} options={pageOptions} placeholder="" onChange={(value: number) => handlePageLimitChange(value)} />
+          <CustomSelect
+            value={rowsPerPage}
+            options={pageOptions}
+            placeholder=""
+            onChange={(value: number) => handlePageLimitChange(value)}
+          />
           {/* <p className="text-sm text-gray-500">
             Showing {currentRows.length} of {filteredData.length} entries
           </p> */}
         </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(p: number) => setCurrentPage(p)}/>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p: number) => setCurrentPage(p)}
+        />
       </div>
+      {/* <AddEntryModal
+        isOpen={showModal}
+        formData={entry}
+        onChange={(data) => setEntry(data)} // 2-way binding
+        onClose={() => setShowModal(false)}
+      /> */}
     </div>
   );
 }
