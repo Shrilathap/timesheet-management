@@ -37,7 +37,7 @@ export default function Pagination({
 //   const lastEntry = Math.min(currentPage * pageSize, totalEntries);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between sm:justify-end gap-4 w-full">
 
       {/* Mobile View (only Prev / Next + current info) */}
       <div className="flex justify-between items-center w-full sm:hidden">
