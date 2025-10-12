@@ -1,13 +1,21 @@
 "use client";
 import { useBreadcrumbs } from "@/context/breadcrumb";
-import { Timesheet } from "@/app/api/timesheets/route";
 import { useEffect, useMemo, useState } from "react";
 import { TimesheetFilters } from "@/types";
 import CustomSelect from "@/components/Select";
 import Pagination from "@/components/Pagination";
+import CommonTable, { Column } from "@/components/Table";
+import { useRouter } from "next/navigation";
+
+interface Timesheet {
+  week: string;
+  date: string;
+  status: "COMPLETED" | "INCOMPLETE" | "MISSING";
+}
 // import AddEntryModal from "@/components/Modal";
 
 export default function Dashboard() {
+  const router = useRouter()
   const [data, setData] = useState<Timesheet[]>([]);
   const { setBreadcrumbs } = useBreadcrumbs();
   //  const [showModal, setShowModal] = useState(false);
@@ -26,7 +34,39 @@ export default function Dashboard() {
     dateRange: "",
   });
 
+  const handleActionClick = (item: { status?: string; id?: string }) => {
+    router.push(`/timesheet/${item.id}`);
+  }
+
+
+  const columns: Column<Timesheet>[] = [
+    { key: "week", label: "WEEK #", sortable: true },
+    { key: "date", label: "DATE", sortable: true },
+    {
+      key: "status",
+      label: "STATUS",
+      sortable: true,
+      render: (item: {status:Timesheet["status"]}) => getStatusBadge(item.status),
+    },
+    {
+      key: "actions",
+      label: "ACTIONS",
+      render: (item: { status: string; }) => (
+        <>
+          {item.status === "COMPLETED" ? (
+            <button className="text-blue-600 hover:underline" onClick={() => handleActionClick(item)}>View</button>
+          ) : item.status === "INCOMPLETE" ? (
+            <button className="text-blue-600 hover:underline" onClick={() => handleActionClick(item)}>Update</button>
+          ) : (
+            <button className="text-blue-600 hover:underline"onClick={() => handleActionClick(item)}>Create</button>
+          )}
+        </>
+      ),
+    },
+  ];
+
   const dateOptions = [
+    {label:"Date range", value:""},
     { label: "This Week", value: "This Week" },
     { label: "Last Week", value: "Last Week" },
     { label: "This Month", value: "This Month" },
@@ -35,6 +75,7 @@ export default function Dashboard() {
   ];
 
   const statusOptions = [
+    {label:"Status", value:""},
     { label: "Completed", value: "COMPLETED" },
     { label: "Incomplete", value: "INCOMPLETE" },
     { label: "Missing", value: "MISSING" },
@@ -151,13 +192,13 @@ export default function Dashboard() {
       {/* Filters */}
       <div className="flex gap-[10px] mb-4 md:flex-row flex-col">
         <CustomSelect
-          value={""}
+          value={filters.dateRange}
           options={dateOptions}
           placeholder="Date range"
           onChange={(value: string) => handleFilter({ dateRange: value })}
         />
         <CustomSelect
-          value={""}
+          value={filters.status}
           options={statusOptions}
           placeholder="Status"
           onChange={(value: string) => handleFilter({ status: value })}
@@ -165,54 +206,12 @@ export default function Dashboard() {
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow rounded-lg w-full overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead className="border-b border-b-gray-200">
-            <tr className="text-left text-sm text-gray-600 bg-gray-50">
-              <th className="py-2 px-4 whitespace-nowrap">WEEK #</th>
-              <th className="py-2 px-4">DATE</th>
-              <th className="py-2 px-4">STATUS</th>
-              <th className="py-2">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentRows.map((item) => (
-              <tr
-                key={item.week}
-                className="border-b border-b-gray-200 text-sm"
-              >
-                <td className="py-2 px-4">{item.week}</td>
-                <td className="py-2 whitespace-nowrap px-4">{item.date}</td>
-                <td className="py-2 px-4">{getStatusBadge(item.status)}</td>
-                <td className="py-2">
-                  {item.status === "COMPLETED" ? (
-                    <button className="text-blue-600 hover:underline">
-                      View
-                    </button>
-                  ) : item.status === "INCOMPLETE" ? (
-                    <button className="text-blue-600 hover:underline">
-                      Update
-                    </button>
-                  ) : (
-                    <button className="text-blue-600 hover:underline">
-                      Create
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {filteredData.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
-            No timesheets found.
-          </div>
-        )}
-      </div>
+
+      <CommonTable columns={columns} data={currentRows} initialSort={{ key: "week", direction: "asc" }} />
 
       {/* Pagination */}
 
-      <div className="flex justify-between items-center pt-4 pb-4 md:flex-row flex-col gap-2">
+      <div className="flex justify-between items-center pt-4 pb-4 lg:flex-row flex-col gap-2">
         <div className="inline-flex items-center gap-4">
           <CustomSelect
             value={rowsPerPage}

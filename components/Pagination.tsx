@@ -37,10 +37,10 @@ export default function Pagination({
 //   const lastEntry = Math.min(currentPage * pageSize, totalEntries);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between sm:justify-end gap-4 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between lg:justify-end sm:justify-center  gap-4 w-full">
 
       {/* Mobile View (only Prev / Next + current info) */}
-      <div className="flex justify-between items-center w-full sm:hidden">
+      <div className="flex justify-between items-center w-full md:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -65,7 +65,7 @@ export default function Pagination({
       </div>
 
       {/* Desktop View (full pagination with numbers) */}
-      <div className="hidden sm:flex items-center space-x-1">
+      <div className="hidden md:flex items-center space-x-1">
         {/* Previous */}
         <button
           onClick={() => onPageChange(currentPage - 1)}
